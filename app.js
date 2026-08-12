@@ -84,6 +84,47 @@ async function fetchCommit(repo, branch = "main") {
   }
 }
 
+function pageMetadata(html) {
+  if (!html) return { title: "", description: "" };
+  const documentCopy = new DOMParser().parseFromString(html, "text/html");
+  return {
+    title: documentCopy.querySelector("title")?.textContent?.trim() || "",
+    description: documentCopy.querySelector('meta[name="description"]')?.content?.trim() || ""
+  };
+}
+
+async function discoverPageProjects() {
+  try {
+    const response = await fetch(`https://api.github.com/users/${OWNER}/repos?per_page=100&type=owner&sort=updated`, {
+      headers: {
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
+      },
+      cache: "no-store"
+    });
+    if (!response.ok) return [];
+    const repositories = await response.json();
+    return repositories
+      .filter((repo) =>
+        repo.has_pages &&
+        !repo.archived &&
+        !repo.disabled &&
+        repo.name !== "pages-hub"
+      )
+      .map((repo) => ({
+        repo: repo.name,
+        title: "",
+        description: repo.description || "",
+        icon: "◇",
+        color: "#8f9bb8",
+        branch: repo.default_branch || "main",
+        discovered: true
+      }));
+  } catch {
+    return [];
+  }
+}
+
 async function inspectProject(project) {
   const pageUrl = `https://${OWNER}.github.io/${project.repo}/`;
   const stamp = Date.now();
@@ -108,6 +149,7 @@ async function inspectProject(project) {
 
   if (!version && page.ok) version = versionFromHtml(page.text);
 
+  const metadata = page.ok ? pageMetadata(page.text) : { title: "", description: "" };
   const shortSha = commit.sha.slice(0, 7);
   const fallbackToken = shortSha || new Intl.DateTimeFormat("sv-SE", {
     timeZone: "Asia/Tokyo",
@@ -120,6 +162,8 @@ async function inspectProject(project) {
 
   return {
     ...project,
+    title: project.title || metadata.title || project.repo,
+    description: project.description || metadata.description || "GitHub Pagesで公開中のアプリ。",
     pageUrl,
     repoUrl: `https://github.com/${OWNER}/${project.repo}`,
     pageOk: page.ok,
@@ -213,9 +257,17 @@ async function loadProjects() {
   cards = [];
 
   try {
-    const response = await fetch(`projects.json?hub=${Date.now()}`, { cache: "no-store" });
-    if (!response.ok) throw new Error("projects");
-    projects = await response.json();
+    const [response, discovered] = await Promise.all([
+      fetch(`projects.json?hub=${Date.now()}`, { cache: "no-store" }).catch(() => null),
+      discoverPageProjects()
+    ]);
+    const configured = response?.ok ? await response.json() : [];
+    const configuredRepos = new Set(configured.map((project) => project.repo));
+    projects = [
+      ...configured,
+      ...discovered.filter((project) => !configuredRepos.has(project.repo))
+    ];
+    if (!projects.length) throw new Error("projects");
 
     const settled = await Promise.allSettled(projects.map(inspectProject));
     const inspected = settled.map((result, index) =>
@@ -223,6 +275,8 @@ async function loadProjects() {
         ? result.value
         : {
             ...projects[index],
+            title: projects[index].title || projects[index].repo,
+            description: projects[index].description || "GitHub Pagesで公開中のアプリ。",
             pageUrl: `https://${OWNER}.github.io/${projects[index].repo}/`,
             repoUrl: `https://github.com/${OWNER}/${projects[index].repo}`,
             latestUrl: `https://${OWNER}.github.io/${projects[index].repo}/?v=${Date.now()}`,
@@ -248,7 +302,7 @@ async function loadProjects() {
   } catch {
     statusText.textContent = "一覧を読み込めなかった";
     emptyState.hidden = false;
-    emptyState.querySelector("p").textContent = "projects.jsonを読み込めなかった。";
+    emptyState.querySelector("p").textContent = "公開中のアプリを読み込めなかった。";
   } finally {
     refreshButton.classList.remove("loading");
     refreshButton.disabled = false;
