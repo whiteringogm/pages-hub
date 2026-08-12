@@ -1,0 +1,23 @@
+[
+  {
+    "repo": "chat-archive",
+    "title": "正史編纂室",
+    "description": "ChatGPTの会話ログを端末内で整理・検索・保存するアーカイブ。",
+    "icon": "◐",
+    "color": "#c5a7ca"
+  },
+  {
+    "repo": "imagegen",
+    "title": "Imagegen Prompt Vault",
+    "description": "画像、プロンプト、キャラクターカード、シーンテンプレの保存庫。",
+    "icon": "✦",
+    "color": "#8bb8c7"
+  },
+  {
+    "repo": "screenshot-header",
+    "title": "じぴヘッダー",
+    "description": "スクリーンショットへ話者ヘッダーを付け、連結や文字置換を行うツール。",
+    "icon": "▣",
+    "color": "#9daee1"
+  }
+]
