@@ -19,5 +19,26 @@
     "description": "スクリーンショットへ話者ヘッダーを付け、連結や文字置換を行うツール。",
     "icon": "▣",
     "color": "#9daee1"
+  },
+  {
+    "repo": "hanamaru",
+    "title": "花丸札",
+    "description": "頭の中の札を剥がして、終わった札を花丸に変換する生活タスク用ツール。",
+    "icon": "🌸",
+    "color": "#e7a7b9"
+  },
+  {
+    "repo": "resttime",
+    "title": "休憩時間計算",
+    "description": "開始時刻から終了時刻までの半分を、休憩時間として計算するツール。",
+    "icon": "◒",
+    "color": "#9db4c8"
+  },
+  {
+    "repo": "chatapp",
+    "title": "自作AIチャット",
+    "description": "ブラウザで使う自作AIチャットアプリ。",
+    "icon": "💬",
+    "color": "#a7a4d8"
   }
 ]
