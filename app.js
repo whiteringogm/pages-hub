@@ -101,12 +101,12 @@ async function inspectProject(project) {
       version = versionFromText(versionFile.text);
     }
   }
-  if (!version && page.ok) version = versionFromHtml(page.text);
-
   if (!version) {
     const worker = await fetchOptionalText(`${pageUrl}sw.js?hub=${stamp}`);
     if (worker.ok) version = versionFromText(worker.text);
   }
+
+  if (!version && page.ok) version = versionFromHtml(page.text);
 
   const shortSha = commit.sha.slice(0, 7);
   const fallbackToken = shortSha || new Intl.DateTimeFormat("sv-SE", {
