@@ -40,5 +40,12 @@
     "description": "ブラウザで使う自作AIチャットアプリ。",
     "icon": "💬",
     "color": "#a7a4d8"
+  },
+  {
+    "repo": "prompt-roulette",
+    "title": "Prompt Roulette",
+    "description": "恋愛ロール向けのメインお題と補助条件を、ランダムに組み合わせるお題抽選ツール。",
+    "icon": "🎲",
+    "color": "#c6a0d8"
   }
 ]
